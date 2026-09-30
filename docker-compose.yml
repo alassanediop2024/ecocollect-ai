@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: ecocollect-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ecocollect
+      POSTGRES_USER: ecocollect
+      POSTGRES_PASSWORD: ecocollect_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - ecocollect_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  ecocollect_postgres_data:
