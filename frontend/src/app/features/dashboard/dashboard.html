@@ -1,0 +1,136 @@
+<section class="dashboard">
+
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">Vue d'ensemble</span>
+      <h2>Tableau de bord</h2>
+      <p>
+        Suivi des opérations de collecte et des équipements municipaux.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-button"
+      (click)="loadStatistics()"
+      [disabled]="loading()">
+      {{ loading() ? 'Actualisation...' : 'Actualiser' }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="state-message">
+      Chargement des statistiques...
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-message">
+      <div>
+        <strong>API indisponible</strong>
+        <p>{{ errorMessage() }}</p>
+      </div>
+
+      <button type="button" (click)="loadStatistics()">
+        Réessayer
+      </button>
+    </div>
+  }
+
+  @if (stats(); as data) {
+
+    <div class="stats-grid">
+
+      <article class="stat-card">
+        <span class="stat-label">Municipalités</span>
+        <strong>{{ data.municipalities }}</strong>
+        <span class="stat-description">
+          Municipalités enregistrées
+        </span>
+      </article>
+
+      <article class="stat-card">
+        <span class="stat-label">Secteurs</span>
+        <strong>{{ data.sectors }}</strong>
+        <span class="stat-description">
+          Secteurs opérationnels
+        </span>
+      </article>
+
+      <article class="stat-card">
+        <span class="stat-label">Contenants</span>
+        <strong>{{ data.containers }}</strong>
+        <span class="stat-description">
+          {{ data.activeContainers }} actif(s)
+        </span>
+      </article>
+
+      <article class="stat-card">
+        <span class="stat-label">Collectes</span>
+        <strong>{{ data.collections }}</strong>
+        <span class="stat-description">
+          Opérations enregistrées
+        </span>
+      </article>
+
+    </div>
+
+    <div class="dashboard-grid">
+
+      <article class="panel weight-panel">
+        <div class="panel-header">
+          <div>
+            <span class="panel-kicker">Performance</span>
+            <h3>Volume collecté</h3>
+          </div>
+        </div>
+
+        <div class="weight-value">
+          {{ data.totalWeightKg | number:'1.0-1' }}
+          <span>kg</span>
+        </div>
+
+        <p>
+          Poids total des collectes terminées enregistrées dans EcoCollect.
+        </p>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <div>
+            <span class="panel-kicker">Supervision</span>
+            <h3>Anomalies</h3>
+          </div>
+
+          <span
+            class="critical-badge"
+            [class.has-critical]="data.criticalAnomalies > 0">
+            {{ data.criticalAnomalies }} critique(s)
+          </span>
+        </div>
+
+        <div class="anomaly-list">
+
+          <div class="anomaly-row">
+            <span>Signalées</span>
+            <strong>{{ data.reportedAnomalies }}</strong>
+          </div>
+
+          <div class="anomaly-row">
+            <span>En cours</span>
+            <strong>{{ data.inProgressAnomalies }}</strong>
+          </div>
+
+          <div class="anomaly-row">
+            <span>Résolues</span>
+            <strong>{{ data.resolvedAnomalies }}</strong>
+          </div>
+
+        </div>
+      </article>
+
+    </div>
+
+  }
+
+</section>
