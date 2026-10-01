@@ -21,6 +21,26 @@ Il met en pratique une architecture moderne basée sur **Angular, TypeScript, Ja
 - Tests automatisés frontend et backend
 - Intégration continue avec GitHub Actions
 
+## Aperçu de l'application
+
+### Tableau de bord
+
+Le tableau de bord fournit une vue synthétique des opérations municipales : contenants actifs, collectes réalisées, poids collecté et suivi des anomalies.
+
+![Tableau de bord EcoCollect AI](docs/screenshots/dashboard.png)
+
+### Gestion opérationnelle
+
+| Contenants | Collectes |
+| --- | --- |
+| ![Gestion des contenants](docs/screenshots/containers.png) | ![Gestion des collectes](docs/screenshots/collections.png) |
+| Suivi des contenants, de leur type, capacité, statut et secteur. | Enregistrement et consultation des opérations de collecte. |
+
+| Anomalies | Secteurs |
+| --- | --- |
+| ![Gestion des anomalies](docs/screenshots/anomalies.png) | ![Gestion des secteurs](docs/screenshots/sectors.png) |
+| Signalement, suivi et résolution des anomalies opérationnelles. | Organisation des secteurs par municipalité. |
+
 ## Architecture
 
     Utilisateur
