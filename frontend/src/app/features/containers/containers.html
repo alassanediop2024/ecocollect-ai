@@ -1,1 +1,381 @@
-<p>containers works!</p>
+<section class="containers-page">
+
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">Équipements</span>
+      <h2>Contenants</h2>
+      <p>Gestion et suivi des contenants de collecte municipale.</p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="loadContainers()"
+        [disabled]="loading()">
+        {{ loading() ? 'Actualisation...' : 'Actualiser' }}
+      </button>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="openForm()">
+        + Nouveau contenant
+      </button>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <div class="success-card">
+      {{ successMessage() }}
+    </div>
+  }
+
+  <div class="summary-bar">
+    <div>
+      <span>Total</span>
+      <strong>{{ containers().length }}</strong>
+    </div>
+
+    <div>
+      <span>Actifs</span>
+      <strong>{{ activeCount }}</strong>
+    </div>
+  </div>
+
+  @if (showForm()) {
+    <div class="form-card">
+
+      <div class="form-header">
+        <div>
+          <span class="eyebrow">Nouveau</span>
+          <h3>Ajouter un contenant</h3>
+          <p>
+            Enregistrez un nouveau contenant dans le réseau municipal.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeForm()">
+          ×
+        </button>
+      </div>
+
+      @if (formErrorMessage()) {
+        <div class="form-error">
+          {{ formErrorMessage() }}
+        </div>
+      }
+
+      <form
+        [formGroup]="containerForm"
+        (ngSubmit)="submitContainer()">
+
+        <div class="form-grid">
+
+          <div class="form-field">
+            <label for="code">
+              Code *
+            </label>
+
+            <input
+              id="code"
+              type="text"
+              maxlength="50"
+              placeholder="Ex. CONT-002"
+              formControlName="code">
+
+            @if (
+              containerForm.controls.code.touched &&
+              containerForm.controls.code.invalid
+            ) {
+              <small>
+                Le code est obligatoire et ne doit pas dépasser
+                50 caractères.
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="address">
+              Adresse *
+            </label>
+
+            <input
+              id="address"
+              type="text"
+              maxlength="255"
+              placeholder="Ex. 250 Rue Principale"
+              formControlName="address">
+
+            @if (
+              containerForm.controls.address.touched &&
+              containerForm.controls.address.invalid
+            ) {
+              <small>
+                L'adresse est obligatoire.
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="containerType">
+              Type *
+            </label>
+
+            <select
+              id="containerType"
+              formControlName="containerType">
+              <option value="GENERAL_WASTE">
+                Déchets généraux
+              </option>
+              <option value="RECYCLING">
+                Recyclage
+              </option>
+              <option value="ORGANIC">
+                Matières organiques
+              </option>
+              <option value="GLASS">
+                Verre
+              </option>
+              <option value="OTHER">
+                Autre
+              </option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="capacity">
+              Capacité (L) *
+            </label>
+
+            <input
+              id="capacity"
+              type="number"
+              min="1"
+              placeholder="Ex. 1100"
+              formControlName="capacity">
+
+            @if (
+              containerForm.controls.capacity.touched &&
+              containerForm.controls.capacity.invalid
+            ) {
+              <small>
+                La capacité doit être supérieure à zéro.
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="sectorId">
+              Secteur *
+            </label>
+
+            <select
+              id="sectorId"
+              formControlName="sectorId">
+
+              <option [ngValue]="null">
+                Sélectionner un secteur
+              </option>
+
+              @for (sector of sectors(); track sector.id) {
+                <option [ngValue]="sector.id">
+                  {{ sector.name }} — {{ sector.municipalityName }}
+                </option>
+              }
+
+            </select>
+
+            @if (
+              containerForm.controls.sectorId.touched &&
+              containerForm.controls.sectorId.invalid
+            ) {
+              <small>
+                Le secteur est obligatoire.
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="status">
+              Statut
+            </label>
+
+            <select
+              id="status"
+              formControlName="status">
+              <option value="ACTIVE">Actif</option>
+              <option value="INACTIVE">Inactif</option>
+              <option value="MAINTENANCE">Maintenance</option>
+              <option value="FULL">Plein</option>
+              <option value="DAMAGED">Endommagé</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="latitude">
+              Latitude
+            </label>
+
+            <input
+              id="latitude"
+              type="number"
+              step="any"
+              min="-90"
+              max="90"
+              placeholder="Ex. 48.4284"
+              formControlName="latitude">
+
+            @if (
+              containerForm.controls.latitude.touched &&
+              containerForm.controls.latitude.invalid
+            ) {
+              <small>
+                La latitude doit être comprise entre -90 et 90.
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="longitude">
+              Longitude
+            </label>
+
+            <input
+              id="longitude"
+              type="number"
+              step="any"
+              min="-180"
+              max="180"
+              placeholder="Ex. -71.0685"
+              formControlName="longitude">
+
+            @if (
+              containerForm.controls.longitude.touched &&
+              containerForm.controls.longitude.invalid
+            ) {
+              <small>
+                La longitude doit être comprise entre -180 et 180.
+              </small>
+            }
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="closeForm()"
+            [disabled]="saving()">
+            Annuler
+          </button>
+
+          <button
+            type="submit"
+            class="primary-button"
+            [disabled]="saving()">
+            {{ saving() ? 'Enregistrement...' : 'Enregistrer le contenant' }}
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="state-card">
+      Chargement des contenants...
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-card">
+      <div>
+        <strong>Erreur de chargement</strong>
+        <p>{{ errorMessage() }}</p>
+      </div>
+
+      <button
+        type="button"
+        (click)="loadContainers()">
+        Réessayer
+      </button>
+    </div>
+  }
+
+  @if (!loading() && !errorMessage()) {
+
+    @if (containers().length > 0) {
+
+      <div class="table-card">
+        <div class="table-wrapper">
+
+          <table>
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Adresse</th>
+                <th>Type</th>
+                <th>Capacité</th>
+                <th>Secteur</th>
+                <th>Municipalité</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (container of containers(); track container.id) {
+                <tr>
+                  <td>
+                    <strong class="container-code">
+                      {{ container.code }}
+                    </strong>
+                  </td>
+
+                  <td>{{ container.address }}</td>
+
+                  <td>
+                    {{ getTypeLabel(container.containerType) }}
+                  </td>
+
+                  <td>
+                    {{ container.capacity | number:'1.0-0' }} L
+                  </td>
+
+                  <td>{{ container.sectorName }}</td>
+
+                  <td>{{ container.municipalityName }}</td>
+
+                  <td>
+                    <span
+                      class="status-badge"
+                      [class.status-active]="container.status === 'ACTIVE'"
+                      [class.status-inactive]="container.status === 'INACTIVE'"
+                      [class.status-maintenance]="container.status === 'MAINTENANCE'"
+                      [class.status-full]="container.status === 'FULL'"
+                      [class.status-damaged]="container.status === 'DAMAGED'">
+                      {{ getStatusLabel(container.status) }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+
+        </div>
+      </div>
+
+    } @else {
+      <div class="state-card">
+        Aucun contenant enregistré.
+      </div>
+    }
+
+  }
+
+</section>
