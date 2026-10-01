@@ -8,3 +8,10 @@ export interface Sector {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface CreateSectorRequest {
+  code: string;
+  name: string;
+  description: string | null;
+  municipalityId: number;
+}

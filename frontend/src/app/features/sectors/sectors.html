@@ -1,1 +1,410 @@
-<p>sectors works!</p>
+<section class="sectors-page">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Organisation territoriale</p>
+      <h1>Secteurs</h1>
+      <p class="page-description">
+        Gérez les secteurs de collecte associés aux municipalités.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="loadSectors()"
+        [disabled]="loading()">
+        {{ loading() ? 'Actualisation...' : 'Actualiser' }}
+      </button>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="openForm()">
+        + Nouveau secteur
+      </button>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <div class="success-card">
+      {{ successMessage() }}
+    </div>
+  }
+
+  <div class="summary-grid">
+
+    <article class="summary-card">
+      <span class="summary-label">
+        Secteurs
+      </span>
+
+      <strong>
+        {{ sectors().length }}
+      </strong>
+
+      <span class="summary-detail">
+        Secteurs enregistrés
+      </span>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-label">
+        Municipalités couvertes
+      </span>
+
+      <strong>
+        {{ municipalityCount }}
+      </strong>
+
+      <span class="summary-detail">
+        Municipalités avec secteur
+      </span>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-label">
+        Secteurs documentés
+      </span>
+
+      <strong>
+        {{ sectorsWithDescriptionCount }}
+      </strong>
+
+      <span class="summary-detail">
+        Avec une description
+      </span>
+    </article>
+
+  </div>
+
+  @if (showForm()) {
+
+    <section class="form-card">
+
+      <div class="form-header">
+        <div>
+          <p class="eyebrow">
+            Organisation territoriale
+          </p>
+
+          <h2>
+            Créer un secteur
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeForm()">
+          ×
+        </button>
+      </div>
+
+      @if (formErrorMessage()) {
+        <div class="form-error">
+          {{ formErrorMessage() }}
+        </div>
+      }
+
+      <form
+        [formGroup]="sectorForm"
+        (ngSubmit)="submitSector()">
+
+        <div class="form-grid">
+
+          <div class="form-field">
+            <label for="code">
+              Code *
+            </label>
+
+            <input
+              id="code"
+              type="text"
+              maxlength="50"
+              placeholder="Ex. SEC-002"
+              formControlName="code">
+
+            @if (
+              sectorForm.controls.code.touched &&
+              sectorForm.controls.code.hasError('required')
+            ) {
+              <small>
+                Le code du secteur est obligatoire.
+              </small>
+            }
+
+            @if (
+              sectorForm.controls.code.touched &&
+              sectorForm.controls.code.hasError('maxlength')
+            ) {
+              <small>
+                Le code ne doit pas dépasser 50 caractères.
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="name">
+              Nom *
+            </label>
+
+            <input
+              id="name"
+              type="text"
+              maxlength="150"
+              placeholder="Ex. Secteur Nord"
+              formControlName="name">
+
+            @if (
+              sectorForm.controls.name.touched &&
+              sectorForm.controls.name.hasError('required')
+            ) {
+              <small>
+                Le nom du secteur est obligatoire.
+              </small>
+            }
+
+            @if (
+              sectorForm.controls.name.touched &&
+              sectorForm.controls.name.hasError('maxlength')
+            ) {
+              <small>
+                Le nom ne doit pas dépasser 150 caractères.
+              </small>
+            }
+          </div>
+
+          <div class="form-field full-width">
+            <label for="municipalityId">
+              Municipalité *
+            </label>
+
+            <select
+              id="municipalityId"
+              formControlName="municipalityId">
+
+              <option [ngValue]="null">
+                Sélectionner une municipalité
+              </option>
+
+              @for (
+                municipality of municipalities();
+                track municipality.id
+              ) {
+                <option [ngValue]="municipality.id">
+                  {{ municipality.code }}
+                  — {{ municipality.name }}
+                  @if (municipality.region) {
+                    — {{ municipality.region }}
+                  }
+                </option>
+              }
+
+            </select>
+
+            @if (
+              sectorForm.controls.municipalityId.touched &&
+              sectorForm.controls.municipalityId.invalid
+            ) {
+              <small>
+                La municipalité est obligatoire.
+              </small>
+            }
+          </div>
+
+          <div class="form-field full-width">
+            <label for="description">
+              Description
+            </label>
+
+            <textarea
+              id="description"
+              rows="4"
+              maxlength="500"
+              placeholder="Décrivez la zone géographique couverte par ce secteur..."
+              formControlName="description">
+            </textarea>
+
+            @if (
+              sectorForm.controls.description.touched &&
+              sectorForm.controls.description.hasError('maxlength')
+            ) {
+              <small>
+                La description ne doit pas dépasser 500 caractères.
+              </small>
+            }
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="closeForm()"
+            [disabled]="saving()">
+            Annuler
+          </button>
+
+          <button
+            type="submit"
+            class="primary-button"
+            [disabled]="saving()">
+            {{
+              saving()
+                ? 'Création...'
+                : 'Créer le secteur'
+            }}
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+  }
+
+  @if (loading()) {
+
+    <div class="state-card">
+      Chargement des secteurs...
+    </div>
+
+  } @else if (errorMessage()) {
+
+    <div class="state-card error-state">
+      <strong>Erreur</strong>
+
+      <p>
+        {{ errorMessage() }}
+      </p>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="loadSectors()">
+        Réessayer
+      </button>
+    </div>
+
+  } @else {
+
+    <section class="table-card">
+
+      <div class="table-header">
+        <div>
+          <h2>
+            Répertoire des secteurs
+          </h2>
+
+          <p>
+            {{ sectors().length }} secteur(s) enregistré(s)
+          </p>
+        </div>
+      </div>
+
+      @if (sectors().length === 0) {
+
+        <div class="empty-state">
+          <strong>
+            Aucun secteur enregistré
+          </strong>
+
+          <p>
+            Créez votre premier secteur de collecte.
+          </p>
+        </div>
+
+      } @else {
+
+        <div class="table-wrapper">
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Secteur</th>
+                <th>Municipalité</th>
+                <th>Description</th>
+                <th>Création</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              @for (sector of sectors(); track sector.id) {
+
+                <tr>
+
+                  <td>
+                    <span class="code-badge">
+                      {{ sector.code }}
+                    </span>
+                  </td>
+
+                  <td>
+                    <strong class="sector-name">
+                      {{ sector.name }}
+                    </strong>
+                  </td>
+
+                  <td>
+                    <div class="municipality-cell">
+                      <strong>
+                        {{ sector.municipalityName }}
+                      </strong>
+
+                      <span>
+                        ID {{ sector.municipalityId }}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td>
+                    @if (sector.description) {
+                      <div
+                        class="description-cell"
+                        [title]="sector.description">
+                        {{ sector.description }}
+                      </div>
+                    } @else {
+                      <span class="empty-value">
+                        Non renseignée
+                      </span>
+                    }
+                  </td>
+
+                  <td>
+                    <div class="date-cell">
+                      <strong>
+                        {{ sector.createdAt | date:'dd/MM/yyyy' }}
+                      </strong>
+
+                      <span>
+                        {{ sector.createdAt | date:'HH:mm' }}
+                      </span>
+                    </div>
+                  </td>
+
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      }
+
+    </section>
+
+  }
+
+</section>
