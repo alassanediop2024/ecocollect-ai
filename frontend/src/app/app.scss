@@ -207,3 +207,67 @@
     padding: 20px;
   }
 }
+
+/* Pied de page HybrideLab */
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+}
+
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 18px 32px;
+  border-top: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.app-footer strong {
+  color: #12372a;
+  font-weight: 700;
+}
+
+.footer-dot {
+  color: #9ca3af;
+}
+
+@media (max-width: 700px) {
+  .app-footer {
+    padding: 16px 20px;
+    font-size: 11px;
+  }
+
+  .footer-separator {
+    display: none;
+  }
+}
+
+.hybridelab-link {
+  color: #12372a;
+  font-weight: 700;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.hybridelab-link:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
+.hybridelab-link:focus-visible {
+  outline: 2px solid #12372a;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
