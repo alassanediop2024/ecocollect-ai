@@ -2,6 +2,8 @@ package com.ecocollect.service;
 
 import com.ecocollect.dto.SectorRequest;
 import com.ecocollect.dto.SectorResponse;
+import com.ecocollect.exception.DuplicateResourceException;
+import com.ecocollect.exception.ResourceNotFoundException;
 import com.ecocollect.mapper.SectorMapper;
 import com.ecocollect.model.Municipality;
 import com.ecocollect.model.Sector;
@@ -57,7 +59,7 @@ public class SectorService {
 
         Municipality municipality = municipalityRepository
                 .findById(request.municipalityId())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "La municipalité avec l'identifiant '" +
                         request.municipalityId() +
                         "' n'existe pas."
@@ -67,7 +69,7 @@ public class SectorService {
                 request.code(),
                 request.municipalityId())) {
 
-            throw new IllegalArgumentException(
+            throw new DuplicateResourceException(
                     "Le secteur avec le code '" +
                     request.code() +
                     "' existe déjà dans cette municipalité."

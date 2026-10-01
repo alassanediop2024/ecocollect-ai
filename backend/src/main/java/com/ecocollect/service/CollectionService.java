@@ -2,6 +2,7 @@ package com.ecocollect.service;
 
 import com.ecocollect.dto.CollectionRequest;
 import com.ecocollect.dto.CollectionResponse;
+import com.ecocollect.exception.ResourceNotFoundException;
 import com.ecocollect.mapper.CollectionMapper;
 import com.ecocollect.model.Collection;
 import com.ecocollect.model.Container;
@@ -70,7 +71,7 @@ public class CollectionService {
 
         Container container = containerRepository
                 .findById(request.containerId())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Le conteneur avec l'identifiant '" +
                         request.containerId() +
                         "' n'existe pas."

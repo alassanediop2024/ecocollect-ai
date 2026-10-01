@@ -2,6 +2,7 @@ package com.ecocollect.service;
 
 import com.ecocollect.dto.AnomalyRequest;
 import com.ecocollect.dto.AnomalyResponse;
+import com.ecocollect.exception.ResourceNotFoundException;
 import com.ecocollect.mapper.AnomalyMapper;
 import com.ecocollect.model.Anomaly;
 import com.ecocollect.model.Container;
@@ -87,7 +88,7 @@ public class AnomalyService {
 
         Container container = containerRepository
                 .findById(request.containerId())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Le conteneur avec l'identifiant '" +
                         request.containerId() +
                         "' n'existe pas."
@@ -121,7 +122,7 @@ public class AnomalyService {
                     anomaly.setStatus(AnomalyStatus.RESOLVED);
                     anomaly.setResolvedAt(LocalDateTime.now());
 
-                    Anomaly saved = anomalyRepository.save(anomaly);
+                    Anomaly saved = anomalyRepository.saveAndFlush(anomaly);
 
                     return anomalyMapper.toResponse(saved);
                 });

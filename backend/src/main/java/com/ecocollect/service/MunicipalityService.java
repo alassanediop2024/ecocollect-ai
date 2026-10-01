@@ -2,6 +2,7 @@ package com.ecocollect.service;
 
 import com.ecocollect.dto.MunicipalityRequest;
 import com.ecocollect.dto.MunicipalityResponse;
+import com.ecocollect.exception.DuplicateResourceException;
 import com.ecocollect.mapper.MunicipalityMapper;
 import com.ecocollect.model.Municipality;
 import com.ecocollect.repository.MunicipalityRepository;
@@ -44,7 +45,7 @@ public class MunicipalityService {
     public MunicipalityResponse create(MunicipalityRequest request) {
 
         if (municipalityRepository.existsByCode(request.code())) {
-            throw new IllegalArgumentException(
+            throw new DuplicateResourceException(
                     "Une municipalité avec le code '" +
                     request.code() +
                     "' existe déjà."

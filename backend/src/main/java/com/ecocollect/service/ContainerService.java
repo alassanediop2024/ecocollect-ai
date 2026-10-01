@@ -2,6 +2,8 @@ package com.ecocollect.service;
 
 import com.ecocollect.dto.ContainerRequest;
 import com.ecocollect.dto.ContainerResponse;
+import com.ecocollect.exception.DuplicateResourceException;
+import com.ecocollect.exception.ResourceNotFoundException;
 import com.ecocollect.mapper.ContainerMapper;
 import com.ecocollect.model.Container;
 import com.ecocollect.model.Sector;
@@ -62,7 +64,7 @@ public class ContainerService {
     public ContainerResponse create(ContainerRequest request) {
 
         if (containerRepository.existsByCode(request.code())) {
-            throw new IllegalArgumentException(
+            throw new DuplicateResourceException(
                     "Un conteneur avec le code '" +
                     request.code() +
                     "' existe déjà."
@@ -71,7 +73,7 @@ public class ContainerService {
 
         Sector sector = sectorRepository
                 .findById(request.sectorId())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new ResourceNotFoundException(
                         "Le secteur avec l'identifiant '" +
                         request.sectorId() +
                         "' n'existe pas."
