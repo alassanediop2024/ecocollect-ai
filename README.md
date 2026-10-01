@@ -117,7 +117,7 @@ La documentation OpenAPI/Swagger est disponible côté backend :
 
 Cloner le dépôt :
 
-    git clone <URL_DU_DEPOT>
+    git clone https://github.com/alassanediop2024/ecocollect-ai.git
     cd ecocollect-ai
 
 Créer la configuration locale :
