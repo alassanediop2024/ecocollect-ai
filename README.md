@@ -6,6 +6,14 @@ Le projet centralise les informations relatives aux municipalités, secteurs, co
 
 Il met en pratique une architecture moderne basée sur **Angular, TypeScript, Java, Spring Boot, PostgreSQL, REST, Docker et GitHub Actions**.
 
+## Démonstration en ligne
+
+🌐 **Application :** https://www.hybridelab.com/applications/ecocollect/
+
+La démonstration publique de l'interface Angular est déployée sur HybrideLab.
+
+Le backend Spring Boot et la base PostgreSQL sont actuellement opérationnels dans l'environnement Docker du projet. Leur déploiement sur l'infrastructure cloud de démonstration est en cours.
+
 ## Fonctionnalités
 
 - Tableau de bord avec statistiques opérationnelles
