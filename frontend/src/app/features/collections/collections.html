@@ -1,1 +1,394 @@
-<p>collections works!</p>
+<section class="collections-page">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Opérations municipales</p>
+      <h1>Collectes</h1>
+      <p class="page-description">
+        Suivez et enregistrez les collectes réalisées sur les contenants.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="loadCollections()"
+        [disabled]="loading()">
+        {{ loading() ? 'Actualisation...' : 'Actualiser' }}
+      </button>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="openForm()">
+        + Nouvelle collecte
+      </button>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <div class="success-card">
+      {{ successMessage() }}
+    </div>
+  }
+
+  <div class="summary-grid">
+    <article class="summary-card">
+      <span class="summary-label">Total des collectes</span>
+      <strong>{{ collections().length }}</strong>
+      <span class="summary-detail">
+        Enregistrements disponibles
+      </span>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-label">Collectes terminées</span>
+      <strong>{{ completedCount }}</strong>
+      <span class="summary-detail">
+        Statut terminé
+      </span>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-label">Poids collecté</span>
+      <strong>{{ totalWeightKg | number:'1.0-1' }} kg</strong>
+      <span class="summary-detail">
+        Poids cumulé enregistré
+      </span>
+    </article>
+  </div>
+
+  @if (showForm()) {
+    <section class="form-card">
+
+      <div class="form-header">
+        <div>
+          <p class="eyebrow">Nouvel enregistrement</p>
+          <h2>Nouvelle collecte</h2>
+        </div>
+
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeForm()">
+          ×
+        </button>
+      </div>
+
+      @if (formErrorMessage()) {
+        <div class="form-error">
+          {{ formErrorMessage() }}
+        </div>
+      }
+
+      <form
+        [formGroup]="collectionForm"
+        (ngSubmit)="submitCollection()">
+
+        <div class="form-grid">
+
+          <div class="form-field">
+            <label for="containerId">
+              Contenant *
+            </label>
+
+            <select
+              id="containerId"
+              formControlName="containerId">
+
+              <option [ngValue]="null">
+                Sélectionner un contenant
+              </option>
+
+              @for (container of containers(); track container.id) {
+                <option [ngValue]="container.id">
+                  {{ container.code }} — {{ container.address }}
+                </option>
+              }
+            </select>
+
+            @if (
+              collectionForm.controls.containerId.touched &&
+              collectionForm.controls.containerId.invalid
+            ) {
+              <small>
+                Le contenant est obligatoire.
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="collectionDate">
+              Date et heure *
+            </label>
+
+            <input
+              id="collectionDate"
+              type="datetime-local"
+              formControlName="collectionDate">
+
+            @if (
+              collectionForm.controls.collectionDate.touched &&
+              collectionForm.controls.collectionDate.invalid
+            ) {
+              <small>
+                La date de collecte est obligatoire.
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="weightKg">
+              Poids collecté (kg)
+            </label>
+
+            <input
+              id="weightKg"
+              type="number"
+              min="0"
+              step="0.1"
+              placeholder="Ex. 245.5"
+              formControlName="weightKg">
+
+            @if (
+              collectionForm.controls.weightKg.touched &&
+              collectionForm.controls.weightKg.hasError('min')
+            ) {
+              <small>
+                Le poids doit être supérieur ou égal à zéro.
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="status">
+              Statut
+            </label>
+
+            <select
+              id="status"
+              formControlName="status">
+
+              <option value="SCHEDULED">
+                Planifiée
+              </option>
+
+              <option value="IN_PROGRESS">
+                En cours
+              </option>
+
+              <option value="COMPLETED">
+                Terminée
+              </option>
+
+              <option value="CANCELLED">
+                Annulée
+              </option>
+
+              <option value="FAILED">
+                Échec
+              </option>
+            </select>
+          </div>
+
+          <div class="form-field full-width">
+            <label for="operator">
+              Opérateur / équipe
+            </label>
+
+            <input
+              id="operator"
+              type="text"
+              maxlength="150"
+              placeholder="Ex. Équipe Collecte A"
+              formControlName="operator">
+
+            @if (
+              collectionForm.controls.operator.touched &&
+              collectionForm.controls.operator.hasError('maxlength')
+            ) {
+              <small>
+                Le nom de l'opérateur ne doit pas dépasser 150 caractères.
+              </small>
+            }
+          </div>
+
+          <div class="form-field full-width">
+            <label for="notes">
+              Notes
+            </label>
+
+            <textarea
+              id="notes"
+              rows="4"
+              maxlength="1000"
+              placeholder="Observations concernant la collecte..."
+              formControlName="notes">
+            </textarea>
+
+            @if (
+              collectionForm.controls.notes.touched &&
+              collectionForm.controls.notes.hasError('maxlength')
+            ) {
+              <small>
+                Les notes ne doivent pas dépasser 1000 caractères.
+              </small>
+            }
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="closeForm()"
+            [disabled]="saving()">
+            Annuler
+          </button>
+
+          <button
+            type="submit"
+            class="primary-button"
+            [disabled]="saving()">
+            {{ saving() ? 'Enregistrement...' : 'Enregistrer la collecte' }}
+          </button>
+        </div>
+
+      </form>
+    </section>
+  }
+
+  @if (loading()) {
+
+    <div class="state-card">
+      Chargement des collectes...
+    </div>
+
+  } @else if (errorMessage()) {
+
+    <div class="state-card error-state">
+      <strong>Erreur de chargement</strong>
+      <p>{{ errorMessage() }}</p>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="loadCollections()">
+        Réessayer
+      </button>
+    </div>
+
+  } @else {
+
+    <section class="table-card">
+
+      <div class="table-header">
+        <div>
+          <h2>Historique des collectes</h2>
+          <p>
+            {{ collections().length }} collecte(s) enregistrée(s)
+          </p>
+        </div>
+      </div>
+
+      @if (collections().length === 0) {
+
+        <div class="empty-state">
+          <strong>Aucune collecte enregistrée</strong>
+          <p>
+            Utilisez « Nouvelle collecte » pour créer
+            le premier enregistrement.
+          </p>
+        </div>
+
+      } @else {
+
+        <div class="table-wrapper">
+          <table>
+
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Contenant</th>
+                <th>Secteur</th>
+                <th>Municipalité</th>
+                <th>Poids</th>
+                <th>Opérateur</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (collection of collections(); track collection.id) {
+                <tr>
+
+                  <td>
+                    <div class="date-cell">
+                      <strong>
+                        {{ collection.collectionDate | date:'dd/MM/yyyy' }}
+                      </strong>
+
+                      <span>
+                        {{ collection.collectionDate | date:'HH:mm' }}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td>
+                    <span class="code-badge">
+                      {{ collection.containerCode }}
+                    </span>
+                  </td>
+
+                  <td>
+                    {{ collection.sectorName }}
+                  </td>
+
+                  <td>
+                    {{ collection.municipalityName }}
+                  </td>
+
+                  <td>
+                    @if (collection.weightKg !== null) {
+                      <strong>
+                        {{ collection.weightKg | number:'1.0-1' }} kg
+                      </strong>
+                    } @else {
+                      <span class="muted">
+                        Non renseigné
+                      </span>
+                    }
+                  </td>
+
+                  <td>
+                    {{ collection.operator || '—' }}
+                  </td>
+
+                  <td>
+                    <span
+                      class="status-badge"
+                      [class.status-scheduled]="collection.status === 'SCHEDULED'"
+                      [class.status-progress]="collection.status === 'IN_PROGRESS'"
+                      [class.status-completed]="collection.status === 'COMPLETED'"
+                      [class.status-cancelled]="collection.status === 'CANCELLED'"
+                      [class.status-failed]="collection.status === 'FAILED'">
+                      {{ getStatusLabel(collection.status) }}
+                    </span>
+                  </td>
+
+                </tr>
+              }
+            </tbody>
+
+          </table>
+        </div>
+
+      }
+
+    </section>
+
+  }
+
+</section>
