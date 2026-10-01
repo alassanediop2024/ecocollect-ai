@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { Municipality } from '../models/municipality.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,7 @@ import { Municipality } from '../models/municipality.model';
 export class MunicipalityService {
 
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api/municipalities';
+  private readonly apiUrl = `${environment.apiBaseUrl}/municipalities`;
 
   getAll(): Observable<Municipality[]> {
     return this.http.get<Municipality[]>(this.apiUrl);

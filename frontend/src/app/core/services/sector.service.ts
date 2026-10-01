@@ -7,13 +7,15 @@ import {
   Sector
 } from '../models/sector.model';
 
+import { environment } from '../../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class SectorService {
 
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api/sectors';
+  private readonly apiUrl = `${environment.apiBaseUrl}/sectors`;
 
   getAll(): Observable<Sector[]> {
     return this.http.get<Sector[]>(this.apiUrl);

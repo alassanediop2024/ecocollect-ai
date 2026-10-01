@@ -7,13 +7,15 @@ import {
   CreateContainerRequest
 } from '../models/container.model';
 
+import { environment } from '../../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class ContainerService {
 
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api/containers';
+  private readonly apiUrl = `${environment.apiBaseUrl}/containers`;
 
   getAll(): Observable<Container[]> {
     return this.http.get<Container[]>(this.apiUrl);

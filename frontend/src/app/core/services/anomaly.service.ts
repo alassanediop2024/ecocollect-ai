@@ -7,13 +7,15 @@ import {
   CreateAnomalyRequest
 } from '../models/anomaly.model';
 
+import { environment } from '../../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class AnomalyService {
 
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api/anomalies';
+  private readonly apiUrl = `${environment.apiBaseUrl}/anomalies`;
 
   getAll(): Observable<Anomaly[]> {
     return this.http.get<Anomaly[]>(this.apiUrl);

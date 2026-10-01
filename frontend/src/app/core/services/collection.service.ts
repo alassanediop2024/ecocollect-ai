@@ -7,13 +7,15 @@ import {
   CreateCollectionRequest
 } from '../models/collection.model';
 
+import { environment } from '../../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class CollectionService {
 
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api/collections';
+  private readonly apiUrl = `${environment.apiBaseUrl}/collections`;
 
   getAll(): Observable<Collection[]> {
     return this.http.get<Collection[]>(this.apiUrl);
