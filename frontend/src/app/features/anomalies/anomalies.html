@@ -1,1 +1,393 @@
-<p>anomalies works!</p>
+<section class="anomalies-page">
+
+  <div class="page-header">
+    <div>
+      <p class="eyebrow">Surveillance municipale</p>
+      <h1>Anomalies</h1>
+      <p class="page-description">
+        Signalez, suivez et résolvez les anomalies liées aux contenants.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="loadAnomalies()"
+        [disabled]="loading()">
+        {{ loading() ? 'Actualisation...' : 'Actualiser' }}
+      </button>
+
+      <button
+        type="button"
+        class="primary-button"
+        (click)="openForm()">
+        + Signaler une anomalie
+      </button>
+    </div>
+  </div>
+
+  @if (successMessage()) {
+    <div class="success-card">
+      {{ successMessage() }}
+    </div>
+  }
+
+  <div class="summary-grid">
+    <article class="summary-card">
+      <span class="summary-label">Anomalies ouvertes</span>
+      <strong>{{ openCount }}</strong>
+      <span class="summary-detail">
+        Signalées ou en cours
+      </span>
+    </article>
+
+    <article class="summary-card critical-summary">
+      <span class="summary-label">Critiques ouvertes</span>
+      <strong>{{ criticalCount }}</strong>
+      <span class="summary-detail">
+        Intervention prioritaire
+      </span>
+    </article>
+
+    <article class="summary-card">
+      <span class="summary-label">Résolues</span>
+      <strong>{{ resolvedCount }}</strong>
+      <span class="summary-detail">
+        Anomalies traitées
+      </span>
+    </article>
+  </div>
+
+  @if (showForm()) {
+    <section class="form-card">
+
+      <div class="form-header">
+        <div>
+          <p class="eyebrow">Nouveau signalement</p>
+          <h2>Signaler une anomalie</h2>
+        </div>
+
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeForm()">
+          ×
+        </button>
+      </div>
+
+      @if (formErrorMessage()) {
+        <div class="form-error">
+          {{ formErrorMessage() }}
+        </div>
+      }
+
+      <form
+        [formGroup]="anomalyForm"
+        (ngSubmit)="submitAnomaly()">
+
+        <div class="form-grid">
+
+          <div class="form-field">
+            <label for="containerId">
+              Contenant *
+            </label>
+
+            <select
+              id="containerId"
+              formControlName="containerId">
+
+              <option [ngValue]="null">
+                Sélectionner un contenant
+              </option>
+
+              @for (container of containers(); track container.id) {
+                <option [ngValue]="container.id">
+                  {{ container.code }} — {{ container.address }}
+                </option>
+              }
+            </select>
+
+            @if (
+              anomalyForm.controls.containerId.touched &&
+              anomalyForm.controls.containerId.invalid
+            ) {
+              <small>
+                Le contenant est obligatoire.
+              </small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="type">
+              Type d'anomalie *
+            </label>
+
+            <select
+              id="type"
+              formControlName="type">
+              <option value="OVERFLOW">Débordement</option>
+              <option value="DAMAGED">Contenant endommagé</option>
+              <option value="ACCESS_BLOCKED">Accès bloqué</option>
+              <option value="ILLEGAL_DUMPING">Dépôt sauvage</option>
+              <option value="SENSOR_FAILURE">Défaillance capteur</option>
+              <option value="OTHER">Autre</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="severity">
+              Gravité *
+            </label>
+
+            <select
+              id="severity"
+              formControlName="severity">
+              <option value="LOW">Faible</option>
+              <option value="MEDIUM">Moyenne</option>
+              <option value="HIGH">Élevée</option>
+              <option value="CRITICAL">Critique</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="status">
+              Statut
+            </label>
+
+            <select
+              id="status"
+              formControlName="status">
+              <option value="REPORTED">Signalée</option>
+              <option value="IN_PROGRESS">En cours</option>
+              <option value="RESOLVED">Résolue</option>
+              <option value="CLOSED">Fermée</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="reportedAt">
+              Date et heure du signalement
+            </label>
+
+            <input
+              id="reportedAt"
+              type="datetime-local"
+              formControlName="reportedAt">
+          </div>
+
+          <div class="form-field full-width">
+            <label for="description">
+              Description *
+            </label>
+
+            <textarea
+              id="description"
+              rows="4"
+              maxlength="1000"
+              placeholder="Décrivez précisément l'anomalie observée..."
+              formControlName="description">
+            </textarea>
+
+            @if (
+              anomalyForm.controls.description.touched &&
+              anomalyForm.controls.description.hasError('required')
+            ) {
+              <small>
+                La description est obligatoire.
+              </small>
+            }
+
+            @if (
+              anomalyForm.controls.description.touched &&
+              anomalyForm.controls.description.hasError('maxlength')
+            ) {
+              <small>
+                La description ne doit pas dépasser 1000 caractères.
+              </small>
+            }
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="closeForm()"
+            [disabled]="saving()">
+            Annuler
+          </button>
+
+          <button
+            type="submit"
+            class="primary-button"
+            [disabled]="saving()">
+            {{ saving() ? 'Enregistrement...' : 'Signaler l’anomalie' }}
+          </button>
+        </div>
+
+      </form>
+    </section>
+  }
+
+  @if (loading()) {
+
+    <div class="state-card">
+      Chargement des anomalies...
+    </div>
+
+  } @else if (errorMessage()) {
+
+    <div class="state-card error-state">
+      <strong>Erreur</strong>
+      <p>{{ errorMessage() }}</p>
+
+      <button
+        type="button"
+        class="secondary-button"
+        (click)="loadAnomalies()">
+        Réessayer
+      </button>
+    </div>
+
+  } @else {
+
+    <section class="table-card">
+
+      <div class="table-header">
+        <div>
+          <h2>Registre des anomalies</h2>
+          <p>
+            {{ anomalies().length }} anomalie(s) enregistrée(s)
+          </p>
+        </div>
+      </div>
+
+      @if (anomalies().length === 0) {
+
+        <div class="empty-state">
+          <strong>Aucune anomalie enregistrée</strong>
+          <p>
+            Aucun signalement n'est actuellement disponible.
+          </p>
+        </div>
+
+      } @else {
+
+        <div class="table-wrapper">
+          <table>
+
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Contenant</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Gravité</th>
+                <th>Statut</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (anomaly of anomalies(); track anomaly.id) {
+                <tr>
+
+                  <td>
+                    <div class="date-cell">
+                      <strong>
+                        {{ anomaly.reportedAt | date:'dd/MM/yyyy' }}
+                      </strong>
+
+                      <span>
+                        {{ anomaly.reportedAt | date:'HH:mm' }}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td>
+                    <div class="container-cell">
+                      <span class="code-badge">
+                        {{ anomaly.containerCode }}
+                      </span>
+
+                      <small>
+                        {{ anomaly.sectorName }}
+                      </small>
+                    </div>
+                  </td>
+
+                  <td>
+                    {{ getTypeLabel(anomaly.type) }}
+                  </td>
+
+                  <td>
+                    <div
+                      class="description-cell"
+                      [title]="anomaly.description">
+                      {{ anomaly.description }}
+                    </div>
+                  </td>
+
+                  <td>
+                    <span
+                      class="severity-badge"
+                      [class.severity-low]="anomaly.severity === 'LOW'"
+                      [class.severity-medium]="anomaly.severity === 'MEDIUM'"
+                      [class.severity-high]="anomaly.severity === 'HIGH'"
+                      [class.severity-critical]="anomaly.severity === 'CRITICAL'">
+                      {{ getSeverityLabel(anomaly.severity) }}
+                    </span>
+                  </td>
+
+                  <td>
+                    <span
+                      class="status-badge"
+                      [class.status-reported]="anomaly.status === 'REPORTED'"
+                      [class.status-progress]="anomaly.status === 'IN_PROGRESS'"
+                      [class.status-resolved]="anomaly.status === 'RESOLVED'"
+                      [class.status-closed]="anomaly.status === 'CLOSED'">
+                      {{ getStatusLabel(anomaly.status) }}
+                    </span>
+                  </td>
+
+                  <td>
+                    @if (
+                      anomaly.status !== 'RESOLVED' &&
+                      anomaly.status !== 'CLOSED'
+                    ) {
+                      <button
+                        type="button"
+                        class="resolve-button"
+                        (click)="resolveAnomaly(anomaly)"
+                        [disabled]="resolvingId() === anomaly.id">
+
+                        {{
+                          resolvingId() === anomaly.id
+                            ? 'Traitement...'
+                            : 'Résoudre'
+                        }}
+
+                      </button>
+                    } @else {
+                      <span class="resolved-text">
+                        ✓ Traitée
+                      </span>
+                    }
+                  </td>
+
+                </tr>
+              }
+            </tbody>
+
+          </table>
+        </div>
+
+      }
+
+    </section>
+
+  }
+
+</section>
