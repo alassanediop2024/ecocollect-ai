@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiBaseUrl: '/applications/ecocollect/api'
+  apiBaseUrl: 'https://api-ecocollect.hybridelab.com/api'
 };
