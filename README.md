@@ -10,9 +10,11 @@ Il met en pratique une architecture moderne basée sur **Angular, TypeScript, Ja
 
 🌐 **Application :** https://www.hybridelab.com/applications/ecocollect/
 
-La démonstration publique de l'interface Angular est déployée sur HybrideLab.
+La démonstration publique Full Stack est opérationnelle sur HybrideLab.
 
-Le backend Spring Boot et la base PostgreSQL sont actuellement opérationnels dans l'environnement Docker du projet. Leur déploiement sur l'infrastructure cloud de démonstration est en cours.
+Le frontend Angular communique avec une API Spring Boot déployée sur une instance Infomaniak Public Cloud. Le backend et PostgreSQL sont conteneurisés avec Docker, l'accès public à l'API est assuré par Nginx en HTTPS avec un certificat Let's Encrypt.
+
+**API de production :** https://api-ecocollect.hybridelab.com/api
 
 ## Fonctionnalités
 
@@ -25,7 +27,7 @@ Le backend Spring Boot et la base PostgreSQL sont actuellement opérationnels da
 - API REST documentée avec OpenAPI
 - Migrations PostgreSQL avec Flyway
 - Healthchecks avec Spring Boot Actuator
-- Déploiement local avec Docker Compose
+- Déploiement local avec Docker Compose et déploiement cloud sur Infomaniak Public Cloud
 - Tests automatisés frontend et backend
 - Intégration continue avec GitHub Actions
 
