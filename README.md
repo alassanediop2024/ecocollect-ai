@@ -172,6 +172,71 @@ Pour arrêter les services :
 
 Les données PostgreSQL sont conservées dans un volume Docker persistant.
 
+## Déploiement en production
+
+La démonstration publique est déployée sur une instance **Infomaniak Public Cloud** sous Ubuntu.
+
+L'environnement de production utilise le fichier :
+
+    docker-compose.production.yml
+
+L'architecture de production est organisée comme suit :
+
+    Internet
+        |
+        | HTTPS 443
+        v
+    Nginx hôte
+        |
+        | 127.0.0.1:8082
+        v
+    Frontend Angular / Nginx (Docker)
+        |
+        | /api
+        v
+    Spring Boot REST API (Docker)
+        |
+        v
+    PostgreSQL 16 (Docker)
+        |
+        v
+    Volume persistant
+
+Le frontend est le seul service Docker publié sur l'hôte et écoute uniquement sur `127.0.0.1:8082`.
+
+Le backend et PostgreSQL restent accessibles uniquement à l'intérieur du réseau Docker et ne sont pas directement exposés à Internet.
+
+### HTTPS et reverse proxy
+
+Nginx assure le reverse proxy public et la terminaison HTTPS.
+
+Le certificat TLS est fourni par **Let's Encrypt** avec renouvellement automatique.
+
+L'API de production est accessible à l'adresse :
+
+    https://api-ecocollect.hybridelab.com/api
+
+### Sécurité réseau
+
+L'instance cloud applique notamment les mesures suivantes :
+
+- exposition publique limitée aux ports HTTP `80` et HTTPS `443` ;
+- accès SSH `22` restreint à une adresse IP d'administration autorisée ;
+- absence d'exposition publique de PostgreSQL ;
+- absence d'exposition directe du backend Spring Boot ;
+- secrets de production fournis par variables d'environnement ;
+- fichier `.env` exclu du dépôt Git.
+
+### Sauvegardes PostgreSQL
+
+Une sauvegarde automatisée de PostgreSQL est exécutée quotidiennement.
+
+Les sauvegardes utilisent `pg_dump` au format PostgreSQL personnalisé et sont conservées avec une rotation de **14 jours**.
+
+Le mécanisme de sauvegarde a été vérifié par génération d'une archive et lecture de son catalogue avec `pg_restore`.
+
+> Les sauvegardes actuellement automatisées sont stockées sur l'instance de production. Une sauvegarde hors instance constitue une évolution prévue pour améliorer la reprise après sinistre.
+
 ## Configuration et sécurité
 
 Les secrets ne sont pas intégrés au code source.
