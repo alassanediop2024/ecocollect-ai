@@ -14,7 +14,7 @@ La démonstration publique Full Stack est opérationnelle sur HybrideLab.
 
 Le frontend Angular communique avec une API Spring Boot déployée sur une instance Infomaniak Public Cloud. Le backend et PostgreSQL sont conteneurisés avec Docker, l'accès public à l'API est assuré par Nginx en HTTPS avec un certificat Let's Encrypt.
 
-**API de production :** https://api-ecocollect.hybridelab.com/api
+**API de production :** https://api-ecocollect.hybridelab.com/
 
 ## Fonctionnalités
 
@@ -214,7 +214,7 @@ Le certificat TLS est fourni par **Let's Encrypt** avec renouvellement automatiq
 
 L'API de production est accessible à l'adresse :
 
-    https://api-ecocollect.hybridelab.com/api
+    https://api-ecocollect.hybridelab.com/
 
 ### Sécurité réseau
 
